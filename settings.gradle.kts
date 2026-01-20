@@ -21,4 +21,10 @@ dependencyResolutionManagement {
 
 rootProject.name = "AbnaMoviesA"
 include(":app")
+include(":core:ui")
+include(":core:util")
+include(":domain")
+include(":data")
+include(":feature:trending")
+include(":feature:detail")
  

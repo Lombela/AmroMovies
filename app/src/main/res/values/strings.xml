@@ -1,35 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AMRO Movies</string>
-    <string name="trending_title">Trending Movies</string>
-    <string name="filter">Filter</string>
-    <string name="sort">Sort</string>
-    <string name="filter_by_genre">Filter by Genre</string>
-    <string name="sort_by">Sort by</string>
-    <string name="apply">Apply</string>
-    <string name="clear">Clear</string>
-    <string name="all_genres">All</string>
-    <string name="popularity">Popularity</string>
-    <string name="title">Title</string>
-    <string name="release_date">Release Date</string>
-    <string name="ascending">Ascending</string>
-    <string name="descending">Descending</string>
-    <string name="overview">Overview</string>
-    <string name="details">Details</string>
-    <string name="status">Status</string>
-    <string name="runtime">Runtime</string>
-    <string name="budget">Budget</string>
-    <string name="revenue">Revenue</string>
-    <string name="view_on_imdb">View on IMDB</string>
-    <string name="loading">Loading…</string>
-    <string name="error_loading_movies">Unable to load movies</string>
-    <string name="error_loading_details">Unable to load movie details</string>
-    <string name="no_movies_found">No movies found</string>
-    <string name="try_adjusting_filters">Try adjusting your filters</string>
-    <string name="movie_poster">Movie poster</string>
-    <string name="movie_backdrop">Movie backdrop</string>
-    <string name="back">Back</string>
-    <string name="votes">votes</string>
-    <string name="hours_short">h</string>
-    <string name="minutes_short">m</string>
 </resources>
