@@ -23,6 +23,7 @@ object NetworkModule {
     private const val BASE_URL = "https://api.themoviedb.org/3/"
     private const val TIMEOUT_SECONDS = 30L
 
+    @Provides
     @Singleton
     fun provideJson(): Json = Json {
         ignoreUnknownKeys = true
