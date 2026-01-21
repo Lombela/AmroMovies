@@ -36,6 +36,36 @@ class MovieRepositoryImpl @Inject constructor(
                     page4Deferred.await().results,
                     page5Deferred.await().results
                 ).flatten()
+                    .distinctBy { it.id }
+                    .take(100)
+                    .toDomainList(genreMap)
+
+                Result.Success(allMovies)
+            }
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
+    }
+
+    override suspend fun getPopularMovies(): Result<List<Movie>> {
+        return try {
+            coroutineScope {
+                val genreMap = getOrFetchGenreMap()
+
+                val page1Deferred = async { tmdbApi.getPopularMovies(page = 1) }
+                val page2Deferred = async { tmdbApi.getPopularMovies(page = 2) }
+                val page3Deferred = async { tmdbApi.getPopularMovies(page = 3) }
+                val page4Deferred = async { tmdbApi.getPopularMovies(page = 4) }
+                val page5Deferred = async { tmdbApi.getPopularMovies(page = 5) }
+
+                val allMovies = listOf(
+                    page1Deferred.await().results,
+                    page2Deferred.await().results,
+                    page3Deferred.await().results,
+                    page4Deferred.await().results,
+                    page5Deferred.await().results
+                ).flatten()
+                    .distinctBy { it.id }
                     .take(100)
                     .toDomainList(genreMap)
 

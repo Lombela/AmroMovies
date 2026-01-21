@@ -1,8 +1,11 @@
 package com.amro.movies.feature.detail
 
+import android.app.Activity
+import android.graphics.Color as AndroidColor
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -16,10 +19,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.amro.movies.feature.detail.R
@@ -36,9 +43,30 @@ fun DetailScreen(
     viewModel: DetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val scrollState = rememberScrollState()
+    val view = LocalView.current
+    val darkTheme = isSystemInDarkTheme()
+
+    if (!view.isInEditMode) {
+        DisposableEffect(view, darkTheme) {
+            val window = (view.context as Activity).window
+            val insetsController = WindowCompat.getInsetsController(window, view)
+            val previousStatusBarColor = window.statusBarColor
+            val previousLightStatus = insetsController.isAppearanceLightStatusBars
+
+            window.statusBarColor = AndroidColor.TRANSPARENT
+            insetsController.isAppearanceLightStatusBars = !darkTheme
+
+            onDispose {
+                window.statusBarColor = previousStatusBarColor
+                insetsController.isAppearanceLightStatusBars = previousLightStatus
+            }
+        }
+    }
 
     Scaffold(
         modifier = modifier,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
                 title = {
@@ -57,15 +85,14 @@ fun DetailScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
+                    containerColor = Color.Transparent,
+                    scrolledContainerColor = Color.Transparent
                 )
             )
         }
-    ) { paddingValues ->
+    ) { _ ->
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+            modifier = Modifier.fillMaxSize()
         ) {
             when {
                 uiState.isLoading -> {
@@ -79,7 +106,6 @@ fun DetailScreen(
                 }
                 uiState.movieDetails != null -> {
                     val movieDetails = uiState.movieDetails!!
-                    val scrollState = rememberScrollState()
 
                     Box(
                         modifier = Modifier
@@ -87,7 +113,10 @@ fun DetailScreen(
                             .verticalScroll(scrollState)
                     ) {
                         androidx.compose.foundation.layout.Column {
-                            MovieHeader(movieDetails = movieDetails)
+                            MovieHeader(
+                                movieDetails = movieDetails,
+                                scrollOffset = scrollState.value
+                            )
                             MovieInfo(movieDetails = movieDetails)
                         }
                     }

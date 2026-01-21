@@ -7,6 +7,7 @@ import com.amro.movies.domain.model.MovieDetails
 
 interface MovieRepository {
     suspend fun getTrendingMovies(): Result<List<Movie>>
+    suspend fun getPopularMovies(): Result<List<Movie>>
     suspend fun getGenres(): Result<List<Genre>>
     suspend fun getMovieDetails(movieId: Int): Result<MovieDetails>
 }
