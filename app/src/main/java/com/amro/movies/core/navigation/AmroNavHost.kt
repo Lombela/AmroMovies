@@ -120,7 +120,7 @@ fun AmroNavHost() {
                         },
                         sharedTransitionScope = sharedTransitionScope,
                         animatedVisibilityScope = this,
-                        modifier = Modifier.padding(paddingValues)
+                        bottomBarHeight = bottomBarHeight.value
                     )
                 }
 

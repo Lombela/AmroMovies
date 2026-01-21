@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -32,6 +33,7 @@ fun LibraryScreen(
     onMovieClick: (Int) -> Unit,
     sharedTransitionScope: SharedTransitionScope? = null,
     animatedVisibilityScope: AnimatedVisibilityScope? = null,
+    bottomBarHeight: Dp = 0.dp,
     modifier: Modifier = Modifier,
     viewModel: LibraryViewModel = hiltViewModel()
 ) {
@@ -45,39 +47,49 @@ fun LibraryScreen(
             )
         }
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            when {
-                uiState.isLoading -> {
+        val gridContentPadding = PaddingValues(
+            start = 16.dp,
+            top = 16.dp,
+            end = 16.dp,
+            bottom = 16.dp + bottomBarHeight
+        )
+        val contentModifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+
+        when {
+            uiState.isLoading -> {
+                Box(modifier = contentModifier) {
                     LoadingIndicator()
                 }
-                uiState.movies.isEmpty() -> {
+            }
+            uiState.movies.isEmpty() -> {
+                Box(modifier = contentModifier) {
                     EmptyView(
                         message = stringResource(R.string.no_favorites)
                     )
                 }
-                else -> {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        contentPadding = PaddingValues(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(
-                            items = uiState.movies,
-                            key = { it.id }
-                        ) { movie ->
-                            MovieCard(
-                                movie = movie,
-                                onClick = { onMovieClick(movie.id) },
-                                sharedTransitionScope = sharedTransitionScope,
-                                animatedVisibilityScope = animatedVisibilityScope
-                            )
-                        }
+            }
+            else -> {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    contentPadding = gridContentPadding,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    items(
+                        items = uiState.movies,
+                        key = { it.id }
+                    ) { movie ->
+                        MovieCard(
+                            movie = movie,
+                            onClick = { onMovieClick(movie.id) },
+                            sharedTransitionScope = sharedTransitionScope,
+                            animatedVisibilityScope = animatedVisibilityScope
+                        )
                     }
                 }
             }
