@@ -1,5 +1,8 @@
 package com.amro.movies.feature.library
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,9 +27,11 @@ import com.amro.movies.core.ui.components.LoadingIndicator
 import com.amro.movies.feature.library.components.MovieCard
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 fun LibraryScreen(
     onMovieClick: (Int) -> Unit,
+    sharedTransitionScope: SharedTransitionScope? = null,
+    animatedVisibilityScope: AnimatedVisibilityScope? = null,
     modifier: Modifier = Modifier,
     viewModel: LibraryViewModel = hiltViewModel()
 ) {
@@ -68,7 +73,9 @@ fun LibraryScreen(
                         ) { movie ->
                             MovieCard(
                                 movie = movie,
-                                onClick = { onMovieClick(movie.id) }
+                                onClick = { onMovieClick(movie.id) },
+                                sharedTransitionScope = sharedTransitionScope,
+                                animatedVisibilityScope = animatedVisibilityScope
                             )
                         }
                     }

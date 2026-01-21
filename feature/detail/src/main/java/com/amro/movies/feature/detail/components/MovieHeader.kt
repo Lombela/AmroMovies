@@ -12,6 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
@@ -31,6 +34,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.amro.movies.core.ui.animation.MovieSharedElementKey
+import com.amro.movies.core.ui.animation.MovieSharedElementType
 import com.amro.movies.feature.detail.R
 import com.amro.movies.core.util.Constants
 import com.amro.movies.domain.model.MovieDetails
@@ -38,11 +43,27 @@ import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
+@OptIn(ExperimentalSharedTransitionApi::class)
 fun MovieHeader(
     movieDetails: MovieDetails,
     scrollOffset: Int,
+    sharedTransitionScope: SharedTransitionScope? = null,
+    animatedVisibilityScope: AnimatedVisibilityScope? = null,
     modifier: Modifier = Modifier
 ) {
+    val posterSharedElementModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+        with(sharedTransitionScope) {
+            Modifier.sharedElement(
+                rememberSharedContentState(
+                    key = MovieSharedElementKey(movieDetails.id, MovieSharedElementType.Poster)
+                ),
+                animatedVisibilityScope
+            )
+        }
+    } else {
+        Modifier
+    }
+
     Column(modifier = modifier) {
         BoxWithConstraints(
             modifier = Modifier
@@ -109,7 +130,7 @@ fun MovieHeader(
             AsyncImage(
                 model = Constants.buildPosterUrl(movieDetails.posterPath),
                 contentDescription = stringResource(R.string.movie_poster),
-                modifier = Modifier
+                modifier = posterSharedElementModifier
                     .width(120.dp)
                     .aspectRatio(2f / 3f)
                     .clip(MaterialTheme.shapes.medium),

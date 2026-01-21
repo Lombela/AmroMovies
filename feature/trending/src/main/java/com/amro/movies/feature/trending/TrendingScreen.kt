@@ -1,5 +1,8 @@
 package com.amro.movies.feature.trending
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,8 +27,11 @@ import com.amro.movies.feature.trending.components.MovieCard
 import com.amro.movies.feature.trending.components.SortBottomSheet
 
 @Composable
+@OptIn(ExperimentalSharedTransitionApi::class)
 fun TrendingScreen(
     onMovieClick: (Int) -> Unit,
+    sharedTransitionScope: SharedTransitionScope? = null,
+    animatedVisibilityScope: AnimatedVisibilityScope? = null,
     modifier: Modifier = Modifier,
     viewModel: TrendingViewModel = hiltViewModel()
 ) {
@@ -74,7 +80,9 @@ fun TrendingScreen(
                         ) { movie ->
                             MovieCard(
                                 movie = movie,
-                                onClick = { onMovieClick(movie.id) }
+                                onClick = { onMovieClick(movie.id) },
+                                sharedTransitionScope = sharedTransitionScope,
+                                animatedVisibilityScope = animatedVisibilityScope
                             )
                         }
                     }

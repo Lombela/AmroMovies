@@ -2,6 +2,9 @@ package com.amro.movies.home
 
 import android.app.Activity
 import android.graphics.Color as AndroidColor
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -55,8 +58,11 @@ private enum class HomeTab(@StringRes val titleRes: Int) {
 }
 
 @Composable
+@OptIn(ExperimentalSharedTransitionApi::class)
 fun HomeScreen(
     onMovieClick: (Int) -> Unit,
+    sharedTransitionScope: SharedTransitionScope? = null,
+    animatedVisibilityScope: AnimatedVisibilityScope? = null,
     bottomBarHeight: Dp = 0.dp,
     modifier: Modifier = Modifier
 ) {
@@ -94,6 +100,8 @@ fun HomeScreen(
             HomeTab.Trending -> {
                 TrendingScreen(
                     onMovieClick = onMovieClick,
+                    sharedTransitionScope = sharedTransitionScope,
+                    animatedVisibilityScope = animatedVisibilityScope,
                     viewModel = trendingViewModel,
                     modifier = Modifier
                         .fillMaxSize()

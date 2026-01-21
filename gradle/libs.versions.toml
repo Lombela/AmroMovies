@@ -5,7 +5,7 @@ ksp = "2.0.0-1.0.22"
 coreKtx = "1.13.1"
 lifecycleRuntime = "2.8.2"
 activityCompose = "1.9.0"
-composeBom = "2024.06.00"
+composeBom = "2025.02.00"
 hilt = "2.51.1"
 hiltNavigationCompose = "1.2.0"
 retrofit = "2.11.0"
@@ -37,6 +37,7 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 # Compose
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 compose-ui = { group = "androidx.compose.ui", name = "ui" }
+compose-animation = { group = "androidx.compose.animation", name = "animation" }
 compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }

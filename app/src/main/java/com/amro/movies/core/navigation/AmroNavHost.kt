@@ -3,6 +3,8 @@ package com.amro.movies.core.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.VideoLibrary
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material3.NavigationBar
@@ -33,6 +35,7 @@ import com.amro.movies.home.HomeScreen
 import com.amro.movies.R
 
 @Composable
+@OptIn(ExperimentalSharedTransitionApi::class)
 fun AmroNavHost() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -57,77 +60,87 @@ fun AmroNavHost() {
         currentDestination?.hierarchy?.any { it.route == item.route } == true
     }
 
-    Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        bottomBar = {
-            if (showBottomBar) {
-                NavigationBar(
-                    modifier = Modifier.onSizeChanged { size ->
-                        bottomBarHeight.value = with(density) { size.height.toDp() }
-                    }
-                ) {
-                    bottomNavItems.forEach { item ->
-                        val selected = currentDestination?.hierarchy?.any { it.route == item.route } == true
-                        NavigationBarItem(
-                            selected = selected,
-                            onClick = {
-                                navController.navigate(item.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
+    SharedTransitionLayout {
+        val sharedTransitionScope = this
+
+        Scaffold(
+            contentWindowInsets = WindowInsets(0, 0, 0, 0),
+            bottomBar = {
+                if (showBottomBar) {
+                    NavigationBar(
+                        modifier = Modifier.onSizeChanged { size ->
+                            bottomBarHeight.value = with(density) { size.height.toDp() }
+                        }
+                    ) {
+                        bottomNavItems.forEach { item ->
+                            val selected = currentDestination?.hierarchy?.any { it.route == item.route } == true
+                            NavigationBarItem(
+                                selected = selected,
+                                onClick = {
+                                    navController.navigate(item.route) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
                                     }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
-                            icon = {
-                                Icon(
-                                    imageVector = item.icon,
-                                    contentDescription = stringResource(item.labelRes)
-                                )
-                            },
-                            label = { Text(text = stringResource(item.labelRes)) }
-                        )
+                                },
+                                icon = {
+                                    Icon(
+                                        imageVector = item.icon,
+                                        contentDescription = stringResource(item.labelRes)
+                                    )
+                                },
+                                label = { Text(text = stringResource(item.labelRes)) }
+                            )
+                        }
                     }
                 }
             }
-        }
-    ) { paddingValues ->
-        NavHost(
-            navController = navController,
-            startDestination = NavRoutes.Home.route
-        ) {
-            composable(route = NavRoutes.Home.route) {
-                HomeScreen(
-                    onMovieClick = { movieId ->
-                        navController.navigate(NavRoutes.Detail.createRoute(movieId))
-                    },
-                    bottomBarHeight = bottomBarHeight.value
-                )
-            }
-
-            composable(route = NavRoutes.Library.route) {
-                LibraryScreen(
-                    onMovieClick = { movieId ->
-                        navController.navigate(NavRoutes.Detail.createRoute(movieId))
-                    },
-                    modifier = Modifier.padding(paddingValues)
-                )
-            }
-
-            composable(
-                route = NavRoutes.Detail.route,
-                arguments = listOf(
-                    navArgument("movieId") {
-                        type = NavType.IntType
-                    }
-                )
+        ) { paddingValues ->
+            NavHost(
+                navController = navController,
+                startDestination = NavRoutes.Home.route
             ) {
-                DetailScreen(
-                    onBackClick = {
-                        navController.popBackStack()
-                    },
-                    modifier = Modifier.padding(paddingValues)
-                )
+                composable(route = NavRoutes.Home.route) {
+                    HomeScreen(
+                        onMovieClick = { movieId ->
+                            navController.navigate(NavRoutes.Detail.createRoute(movieId))
+                        },
+                        bottomBarHeight = bottomBarHeight.value,
+                        sharedTransitionScope = sharedTransitionScope,
+                        animatedVisibilityScope = this
+                    )
+                }
+
+                composable(route = NavRoutes.Library.route) {
+                    LibraryScreen(
+                        onMovieClick = { movieId ->
+                            navController.navigate(NavRoutes.Detail.createRoute(movieId))
+                        },
+                        sharedTransitionScope = sharedTransitionScope,
+                        animatedVisibilityScope = this,
+                        modifier = Modifier.padding(paddingValues)
+                    )
+                }
+
+                composable(
+                    route = NavRoutes.Detail.route,
+                    arguments = listOf(
+                        navArgument("movieId") {
+                            type = NavType.IntType
+                        }
+                    )
+                ) {
+                    DetailScreen(
+                        onBackClick = {
+                            navController.popBackStack()
+                        },
+                        sharedTransitionScope = sharedTransitionScope,
+                        animatedVisibilityScope = this,
+                        modifier = Modifier.padding(paddingValues)
+                    )
+                }
             }
         }
     }

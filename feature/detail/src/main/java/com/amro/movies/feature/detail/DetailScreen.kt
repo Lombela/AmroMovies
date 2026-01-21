@@ -2,6 +2,9 @@ package com.amro.movies.feature.detail
 
 import android.app.Activity
 import android.graphics.Color as AndroidColor
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -38,10 +41,12 @@ import com.amro.movies.core.ui.components.LoadingIndicator
 import com.amro.movies.feature.detail.components.MovieHeader
 import com.amro.movies.feature.detail.components.MovieInfo
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun DetailScreen(
     onBackClick: () -> Unit,
+    sharedTransitionScope: SharedTransitionScope? = null,
+    animatedVisibilityScope: AnimatedVisibilityScope? = null,
     modifier: Modifier = Modifier,
     viewModel: DetailViewModel = hiltViewModel()
 ) {
@@ -137,7 +142,9 @@ fun DetailScreen(
                         androidx.compose.foundation.layout.Column {
                             MovieHeader(
                                 movieDetails = movieDetails,
-                                scrollOffset = scrollState.value
+                                scrollOffset = scrollState.value,
+                                sharedTransitionScope = sharedTransitionScope,
+                                animatedVisibilityScope = animatedVisibilityScope
                             )
                             MovieInfo(movieDetails = movieDetails)
                         }

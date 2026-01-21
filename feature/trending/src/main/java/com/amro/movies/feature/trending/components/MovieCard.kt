@@ -1,5 +1,8 @@
 package com.amro.movies.feature.trending.components
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -17,16 +20,34 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.amro.movies.core.ui.animation.MovieSharedElementKey
+import com.amro.movies.core.ui.animation.MovieSharedElementType
 import com.amro.movies.feature.trending.R
 import com.amro.movies.core.util.Constants
 import com.amro.movies.domain.model.Movie
 
 @Composable
+@OptIn(ExperimentalSharedTransitionApi::class)
 fun MovieCard(
     movie: Movie,
     onClick: () -> Unit,
+    sharedTransitionScope: SharedTransitionScope? = null,
+    animatedVisibilityScope: AnimatedVisibilityScope? = null,
     modifier: Modifier = Modifier
 ) {
+    val posterSharedElementModifier = if (sharedTransitionScope != null && animatedVisibilityScope != null) {
+        with(sharedTransitionScope) {
+            Modifier.sharedElement(
+                rememberSharedContentState(
+                    key = MovieSharedElementKey(movie.id, MovieSharedElementType.Poster)
+                ),
+                animatedVisibilityScope
+            )
+        }
+    } else {
+        Modifier
+    }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -38,7 +59,7 @@ fun MovieCard(
             AsyncImage(
                 model = Constants.buildPosterUrl(movie.posterPath),
                 contentDescription = stringResource(R.string.movie_poster),
-                modifier = Modifier
+                modifier = posterSharedElementModifier
                     .fillMaxWidth()
                     .aspectRatio(2f / 3f)
                     .clip(MaterialTheme.shapes.medium),
