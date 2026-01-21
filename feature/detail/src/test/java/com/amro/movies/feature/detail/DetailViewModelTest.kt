@@ -160,7 +160,6 @@ class DetailViewModelTest {
 
     @Test
     fun `handles movie id of 0 when not provided`() = runTest {
-        // Given
         val savedStateHandle = SavedStateHandle() // No movieId
         every { getMovieDetailsUseCase(0) } returns flowOf(null)
         coEvery { refreshMovieDetailsUseCase(0) } returns Result.Error(RuntimeException("Invalid movie ID"))
@@ -176,23 +175,19 @@ class DetailViewModelTest {
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
-        // Then
         verify { getMovieDetailsUseCase(0) }
         coVerify { refreshMovieDetailsUseCase(0) }
     }
 
     @Test
     fun `movie details contains all expected fields`() = runTest {
-        // Given
         val movieDetails = TestData.movieDetails
         every { getMovieDetailsUseCase(1) } returns flowOf(movieDetails)
         coEvery { refreshMovieDetailsUseCase(1) } returns Result.Success(Unit)
 
-        // When
         val viewModel = createViewModel(movieId = 1)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        // Then
         viewModel.uiState.test {
             val state = awaitItem()
             val details = state.movieDetails!!

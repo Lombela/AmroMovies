@@ -53,4 +53,15 @@ dependencies {
     implementation(libs.coil.compose)
 
     debugImplementation(libs.compose.ui.tooling)
+
+    testImplementation(libs.junit5)
+    testRuntimeOnly(libs.junit5.engine)
+    testRuntimeOnly(libs.junit5.platform.launcher)
+    testImplementation(libs.mockk)
+    testImplementation(libs.turbine)
+    testImplementation(libs.coroutines.test)
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
