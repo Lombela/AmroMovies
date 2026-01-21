@@ -4,12 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amro.movies.domain.usecase.GetPopularMoviesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class PopularViewModel @Inject constructor(
@@ -25,7 +25,7 @@ class PopularViewModel @Inject constructor(
 
     fun onEvent(event: PopularEvent) {
         when (event) {
-            PopularEvent.LoadMovies -> loadMovies()
+            PopularEvent.LoadMovies,
             PopularEvent.Retry -> loadMovies()
         }
     }

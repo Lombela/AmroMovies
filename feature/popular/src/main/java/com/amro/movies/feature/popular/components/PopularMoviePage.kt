@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -76,6 +77,34 @@ fun PopularMoviePage(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
+
+            val ratingText = if (movie.voteAverage > 0) {
+                stringResource(R.string.rating_format, movie.voteAverage)
+            } else {
+                ""
+            }
+            val genresText = movie.genres.joinToString(separator = ", ") { it.name }
+
+            if (ratingText.isNotBlank() || genresText.isNotBlank()) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (ratingText.isNotBlank()) {
+                        Text(
+                            text = ratingText,
+                            style = MaterialTheme.typography.labelLarge,
+                            color = Color.White
+                        )
+                    }
+                    if (genresText.isNotBlank()) {
+                        Text(
+                            text = genresText,
+                            style = MaterialTheme.typography.labelLarge,
+                            color = Color.White,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
 
             if (!movie.overview.isNullOrBlank()) {
                 Text(

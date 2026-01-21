@@ -48,7 +48,6 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     implementation(libs.coil.compose)
-
     debugImplementation(libs.compose.ui.tooling)
 
     testImplementation(libs.junit5)

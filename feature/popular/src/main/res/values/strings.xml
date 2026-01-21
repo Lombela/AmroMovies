@@ -2,6 +2,7 @@
 <resources>
     <string name="popular_movie_backdrop">Popular movie backdrop</string>
     <string name="watch">Watch</string>
+    <string name="rating_format">Rating: %.1f</string>
     <string name="error_loading_popular_movies">Error loading popular movies</string>
     <string name="no_popular_movies">No popular movies found</string>
 </resources>
