@@ -2,6 +2,7 @@ package com.amro.movies.core.util
 
 object Constants {
     const val TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/"
+    const val DEFAULT_USER_ID = "local"
 
     object ImageSize {
         const val POSTER_W185 = "w185"

@@ -5,10 +5,14 @@ import com.amro.movies.TestData
 import com.amro.movies.core.util.Result
 import com.amro.movies.domain.model.Movie
 import com.amro.movies.domain.usecase.GetTrendingMoviesUseCase
+import com.amro.movies.domain.usecase.RefreshTrendingMoviesUseCase
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -26,11 +30,13 @@ class TrendingViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var getTrendingMoviesUseCase: GetTrendingMoviesUseCase
+    private lateinit var refreshTrendingMoviesUseCase: RefreshTrendingMoviesUseCase
 
     @BeforeEach
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         getTrendingMoviesUseCase = mockk()
+        refreshTrendingMoviesUseCase = mockk()
     }
 
     @AfterEach
@@ -41,10 +47,11 @@ class TrendingViewModelTest {
     @Test
     fun `initial state is loading`() = runTest {
         // Given
-        coEvery { getTrendingMoviesUseCase() } returns Result.Success(emptyList())
+        every { getTrendingMoviesUseCase(any()) } returns flowOf(emptyList())
+        coEvery { refreshTrendingMoviesUseCase(any()) } returns Result.Success(Unit)
 
         // When
-        val viewModel = TrendingViewModel(getTrendingMoviesUseCase)
+        val viewModel = TrendingViewModel(getTrendingMoviesUseCase, refreshTrendingMoviesUseCase)
 
         // Then
         assertTrue(viewModel.uiState.value.isLoading)
@@ -54,10 +61,11 @@ class TrendingViewModelTest {
     fun `loads movies on initialization`() = runTest {
         // Given
         val movies = listOf(TestData.movie1, TestData.movie2)
-        coEvery { getTrendingMoviesUseCase() } returns Result.Success(movies)
+        every { getTrendingMoviesUseCase(any()) } returns flowOf(movies)
+        coEvery { refreshTrendingMoviesUseCase(any()) } returns Result.Success(Unit)
 
         // When
-        val viewModel = TrendingViewModel(getTrendingMoviesUseCase)
+        val viewModel = TrendingViewModel(getTrendingMoviesUseCase, refreshTrendingMoviesUseCase)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
@@ -74,10 +82,11 @@ class TrendingViewModelTest {
     fun `shows error when loading fails`() = runTest {
         // Given
         val exception = RuntimeException("Network error")
-        coEvery { getTrendingMoviesUseCase() } returns Result.Error(exception)
+        every { getTrendingMoviesUseCase(any()) } returns flowOf(emptyList())
+        coEvery { refreshTrendingMoviesUseCase(any()) } returns Result.Error(exception)
 
         // When
-        val viewModel = TrendingViewModel(getTrendingMoviesUseCase)
+        val viewModel = TrendingViewModel(getTrendingMoviesUseCase, refreshTrendingMoviesUseCase)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
@@ -92,9 +101,10 @@ class TrendingViewModelTest {
     fun `filters movies by genre`() = runTest {
         // Given
         val movies = listOf(TestData.movie1, TestData.movie2)
-        coEvery { getTrendingMoviesUseCase() } returns Result.Success(movies)
+        every { getTrendingMoviesUseCase(any()) } returns flowOf(movies)
+        coEvery { refreshTrendingMoviesUseCase(any()) } returns Result.Success(Unit)
 
-        val viewModel = TrendingViewModel(getTrendingMoviesUseCase)
+        val viewModel = TrendingViewModel(getTrendingMoviesUseCase, refreshTrendingMoviesUseCase)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // When
@@ -113,9 +123,10 @@ class TrendingViewModelTest {
     fun `clears filter shows all movies`() = runTest {
         // Given
         val movies = listOf(TestData.movie1, TestData.movie2)
-        coEvery { getTrendingMoviesUseCase() } returns Result.Success(movies)
+        every { getTrendingMoviesUseCase(any()) } returns flowOf(movies)
+        coEvery { refreshTrendingMoviesUseCase(any()) } returns Result.Success(Unit)
 
-        val viewModel = TrendingViewModel(getTrendingMoviesUseCase)
+        val viewModel = TrendingViewModel(getTrendingMoviesUseCase, refreshTrendingMoviesUseCase)
         testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.onEvent(TrendingEvent.SelectGenre(TestData.genre3))
@@ -137,9 +148,10 @@ class TrendingViewModelTest {
     fun `sorts movies by title ascending`() = runTest {
         // Given
         val movies = listOf(TestData.movie1, TestData.movie2)
-        coEvery { getTrendingMoviesUseCase() } returns Result.Success(movies)
+        every { getTrendingMoviesUseCase(any()) } returns flowOf(movies)
+        coEvery { refreshTrendingMoviesUseCase(any()) } returns Result.Success(Unit)
 
-        val viewModel = TrendingViewModel(getTrendingMoviesUseCase)
+        val viewModel = TrendingViewModel(getTrendingMoviesUseCase, refreshTrendingMoviesUseCase)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // When
@@ -159,9 +171,10 @@ class TrendingViewModelTest {
     fun `sorts movies by popularity descending by default`() = runTest {
         // Given
         val movies = listOf(TestData.movie2, TestData.movie1) // movie2 has lower popularity
-        coEvery { getTrendingMoviesUseCase() } returns Result.Success(movies)
+        every { getTrendingMoviesUseCase(any()) } returns flowOf(movies)
+        coEvery { refreshTrendingMoviesUseCase(any()) } returns Result.Success(Unit)
 
-        val viewModel = TrendingViewModel(getTrendingMoviesUseCase)
+        val viewModel = TrendingViewModel(getTrendingMoviesUseCase, refreshTrendingMoviesUseCase)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
@@ -177,9 +190,10 @@ class TrendingViewModelTest {
     fun `extracts available genres from movies`() = runTest {
         // Given
         val movies = listOf(TestData.movie1, TestData.movie2)
-        coEvery { getTrendingMoviesUseCase() } returns Result.Success(movies)
+        every { getTrendingMoviesUseCase(any()) } returns flowOf(movies)
+        coEvery { refreshTrendingMoviesUseCase(any()) } returns Result.Success(Unit)
 
-        val viewModel = TrendingViewModel(getTrendingMoviesUseCase)
+        val viewModel = TrendingViewModel(getTrendingMoviesUseCase, refreshTrendingMoviesUseCase)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then
@@ -192,9 +206,10 @@ class TrendingViewModelTest {
     @Test
     fun `shows filter sheet when requested`() = runTest {
         // Given
-        coEvery { getTrendingMoviesUseCase() } returns Result.Success(emptyList())
+        every { getTrendingMoviesUseCase(any()) } returns flowOf(emptyList())
+        coEvery { refreshTrendingMoviesUseCase(any()) } returns Result.Success(Unit)
 
-        val viewModel = TrendingViewModel(getTrendingMoviesUseCase)
+        val viewModel = TrendingViewModel(getTrendingMoviesUseCase, refreshTrendingMoviesUseCase)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // When
@@ -207,9 +222,10 @@ class TrendingViewModelTest {
     @Test
     fun `hides filter sheet when requested`() = runTest {
         // Given
-        coEvery { getTrendingMoviesUseCase() } returns Result.Success(emptyList())
+        every { getTrendingMoviesUseCase(any()) } returns flowOf(emptyList())
+        coEvery { refreshTrendingMoviesUseCase(any()) } returns Result.Success(Unit)
 
-        val viewModel = TrendingViewModel(getTrendingMoviesUseCase)
+        val viewModel = TrendingViewModel(getTrendingMoviesUseCase, refreshTrendingMoviesUseCase)
         testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.onEvent(TrendingEvent.ShowFilterSheet)
@@ -224,16 +240,19 @@ class TrendingViewModelTest {
     @Test
     fun `retry reloads movies`() = runTest {
         // Given
-        coEvery { getTrendingMoviesUseCase() } returns Result.Error(RuntimeException("Error"))
+        val moviesFlow = MutableStateFlow<List<Movie>>(emptyList())
+        every { getTrendingMoviesUseCase(any()) } returns moviesFlow
+        coEvery { refreshTrendingMoviesUseCase(any()) } returns Result.Error(RuntimeException("Error"))
 
-        val viewModel = TrendingViewModel(getTrendingMoviesUseCase)
+        val viewModel = TrendingViewModel(getTrendingMoviesUseCase, refreshTrendingMoviesUseCase)
         testDispatcher.scheduler.advanceUntilIdle()
 
         val movies = listOf(TestData.movie1)
-        coEvery { getTrendingMoviesUseCase() } returns Result.Success(movies)
+        coEvery { refreshTrendingMoviesUseCase(any()) } returns Result.Success(Unit)
 
         // When
         viewModel.onEvent(TrendingEvent.Retry)
+        moviesFlow.value = movies
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Then

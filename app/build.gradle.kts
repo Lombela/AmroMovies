@@ -38,6 +38,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -58,6 +59,7 @@ android {
 
 dependencies {
     implementation(project(":core:ui"))
+    implementation(project(":core:util"))
     implementation(project(":data"))
     implementation(project(":feature:detail"))
     implementation(project(":feature:trending"))
@@ -70,6 +72,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
 
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+
     // Compose
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
@@ -81,6 +85,10 @@ dependencies {
 
     // Navigation
     implementation(libs.navigation.compose)
+
+    // WorkManager
+    implementation(libs.work.runtime.ktx)
+    implementation(libs.hilt.work)
 
     // Hilt
     implementation(libs.hilt.android)

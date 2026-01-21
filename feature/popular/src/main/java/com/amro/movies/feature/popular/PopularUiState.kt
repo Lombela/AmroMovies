@@ -3,7 +3,7 @@ package com.amro.movies.feature.popular
 import com.amro.movies.domain.model.Movie
 
 data class PopularUiState(
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = true,
     val movies: List<Movie> = emptyList(),
     val error: String? = null
 )
