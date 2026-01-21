@@ -61,6 +61,9 @@ dependencies {
     implementation(project(":data"))
     implementation(project(":feature:detail"))
     implementation(project(":feature:trending"))
+    implementation(project(":feature:popular"))
+    implementation(project(":feature:actors"))
+    implementation(project(":feature:library"))
 
     // Core Android
     implementation(libs.androidx.core.ktx)
@@ -72,6 +75,7 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
     implementation(libs.compose.material3)
+    implementation(libs.compose.material.icons.extended)
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)
 
@@ -80,6 +84,7 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
     ksp(libs.hilt.compiler)
 
     androidTestImplementation(libs.androidx.junit)

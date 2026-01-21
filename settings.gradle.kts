@@ -27,4 +27,7 @@ include(":domain")
 include(":data")
 include(":feature:trending")
 include(":feature:detail")
+include(":feature:popular")
+include(":feature:actors")
+include(":feature:library")
  

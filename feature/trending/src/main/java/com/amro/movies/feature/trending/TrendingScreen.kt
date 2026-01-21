@@ -8,18 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Sort
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -34,7 +23,6 @@ import com.amro.movies.feature.trending.components.FilterBottomSheet
 import com.amro.movies.feature.trending.components.MovieCard
 import com.amro.movies.feature.trending.components.SortBottomSheet
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrendingScreen(
     onMovieClick: (Int) -> Unit,
@@ -44,43 +32,7 @@ fun TrendingScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
-        modifier = modifier,
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.trending_title),
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                },
-                actions = {
-                    IconButton(
-                        onClick = { viewModel.onEvent(TrendingEvent.LoadMovies) },
-                        enabled = !uiState.isLoading
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Refresh"
-                        )
-                    }
-                    IconButton(onClick = { viewModel.onEvent(TrendingEvent.ShowFilterSheet) }) {
-                        Icon(
-                            imageVector = Icons.Default.FilterList,
-                            contentDescription = stringResource(R.string.filter)
-                        )
-                    }
-                    IconButton(onClick = { viewModel.onEvent(TrendingEvent.ShowSortSheet) }) {
-                        Icon(
-                            imageVector = Icons.Default.Sort,
-                            contentDescription = stringResource(R.string.sort)
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            )
-        }
+        modifier = modifier
     ) { paddingValues ->
         Box(
             modifier = Modifier
