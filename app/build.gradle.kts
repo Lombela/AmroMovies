@@ -64,7 +64,6 @@ dependencies {
     implementation(project(":feature:detail"))
     implementation(project(":feature:trending"))
     implementation(project(":feature:popular"))
-    implementation(project(":feature:actors"))
     implementation(project(":feature:library"))
 
     // Core Android

@@ -2,7 +2,6 @@ package com.amro.movies.core.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.WindowInsets
@@ -29,7 +28,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.amro.movies.feature.detail.DetailScreen
-import com.amro.movies.feature.actors.ActorsScreen
 import com.amro.movies.feature.library.LibraryScreen
 import com.amro.movies.home.HomeScreen
 import com.amro.movies.R
@@ -47,11 +45,6 @@ fun AmroNavHost() {
             route = NavRoutes.Home.route,
             labelRes = R.string.nav_home,
             icon = Icons.Default.Home
-        ),
-        BottomNavItem(
-            route = NavRoutes.Actors.route,
-            labelRes = R.string.nav_actors,
-            icon = Icons.Default.People
         ),
         BottomNavItem(
             route = NavRoutes.Library.route,
@@ -110,10 +103,6 @@ fun AmroNavHost() {
                     },
                     bottomBarHeight = bottomBarHeight.value
                 )
-            }
-
-            composable(route = NavRoutes.Actors.route) {
-                ActorsScreen(modifier = Modifier.padding(paddingValues))
             }
 
             composable(route = NavRoutes.Library.route) {
