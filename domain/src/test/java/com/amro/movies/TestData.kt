@@ -18,7 +18,9 @@ object TestData {
         genres = listOf(genre1, genre2),
         popularity = 100.0,
         releaseDate = LocalDate.of(2024, 1, 15),
-        voteAverage = 7.5
+        voteAverage = 7.5,
+        backdropPath = "/backdrop1.jpg",
+        overview = "This is a test movie overview."
     )
 
     val movie2 = Movie(
@@ -28,7 +30,9 @@ object TestData {
         genres = listOf(genre3),
         popularity = 80.0,
         releaseDate = LocalDate.of(2024, 2, 20),
-        voteAverage = 8.0
+        voteAverage = 8.0,
+        backdropPath = "/backdrop1.jpg",
+        overview = "This is a test movie overview."
     )
 
     val movieDetails = MovieDetails(
