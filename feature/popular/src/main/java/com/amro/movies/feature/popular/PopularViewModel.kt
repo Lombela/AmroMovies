@@ -23,10 +23,10 @@ class PopularViewModel @Inject constructor(
     val uiState: StateFlow<PopularUiState> = _uiState.asStateFlow()
 
     private val userId = Constants.DEFAULT_USER_ID
+    private var hasTriggeredInitialRefresh = false
 
     init {
         observeMovies()
-        refreshMovies(showErrors = false)
     }
 
     fun onEvent(event: PopularEvent) {
@@ -45,6 +45,10 @@ class PopularViewModel @Inject constructor(
                         movies = movies,
                         error = if (movies.isNotEmpty()) null else state.error
                     )
+                }
+                if (!hasTriggeredInitialRefresh) {
+                    hasTriggeredInitialRefresh = true
+                    refreshMovies(showErrors = movies.isEmpty())
                 }
             }
         }

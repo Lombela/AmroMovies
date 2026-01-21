@@ -25,10 +25,10 @@ class TrendingViewModel @Inject constructor(
     val uiState: StateFlow<TrendingUiState> = _uiState.asStateFlow()
 
     private val userId = Constants.DEFAULT_USER_ID
+    private var hasPerformedInitialLoad = false
 
     init {
         observeMovies()
-        refreshMovies(showErrors = false)
     }
 
     fun onEvent(event: TrendingEvent) {
@@ -59,6 +59,10 @@ class TrendingViewModel @Inject constructor(
                         availableGenres = availableGenres,
                         error = if (movies.isNotEmpty()) null else state.error
                     )
+                }
+                if (!hasPerformedInitialLoad) {
+                    hasPerformedInitialLoad = true
+                    refreshMovies(showErrors = movies.isEmpty())
                 }
             }
         }
@@ -128,14 +132,12 @@ class TrendingViewModel @Inject constructor(
     ): List<Movie> {
         var filteredMovies = movies
 
-        // Apply genre filter
         state.selectedGenre?.let { genre ->
             filteredMovies = filteredMovies.filter { movie ->
                 movie.genres.any { it.id == genre.id }
             }
         }
 
-        // Apply sorting
         filteredMovies = when (state.sortOption) {
             SortOption.POPULARITY -> {
                 if (state.sortOrder == SortOrder.DESCENDING) {
