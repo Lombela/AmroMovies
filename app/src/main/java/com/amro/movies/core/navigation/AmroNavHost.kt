@@ -117,7 +117,12 @@ fun AmroNavHost() {
             }
 
             composable(route = NavRoutes.Library.route) {
-                LibraryScreen(modifier = Modifier.padding(paddingValues))
+                LibraryScreen(
+                    onMovieClick = { movieId ->
+                        navController.navigate(NavRoutes.Detail.createRoute(movieId))
+                    },
+                    modifier = Modifier.padding(paddingValues)
+                )
             }
 
             composable(

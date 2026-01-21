@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.amro.movies.data.local.db.MovieDao
 import com.amro.movies.data.local.db.MoviesDatabase
+import com.amro.movies.data.local.db.MoviesMigrations
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,7 +23,8 @@ object LocalModule {
             context,
             MoviesDatabase::class.java,
             "movies.db"
-        ).build()
+        ).addMigrations(MoviesMigrations.MIGRATION_1_2)
+            .build()
     }
 
     @Provides

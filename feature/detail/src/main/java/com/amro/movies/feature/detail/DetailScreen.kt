@@ -6,10 +6,13 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -84,26 +87,45 @@ fun DetailScreen(
                         )
                     }
                 },
+                actions = {
+                    IconButton(
+                        onClick = { viewModel.onEvent(DetailEvent.ToggleFavorite) },
+                        enabled = uiState.movieDetails != null
+                    ) {
+                        Icon(
+                            imageVector = if (uiState.isFavorite) {
+                                Icons.Filled.Favorite
+                            } else {
+                                Icons.Outlined.FavoriteBorder
+                            },
+                            contentDescription = stringResource(
+                                if (uiState.isFavorite) {
+                                    R.string.remove_from_favorites
+                                } else {
+                                    R.string.add_to_favorites
+                                }
+                            ),
+                            tint = if (uiState.isFavorite) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurface
+                            }
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
                     scrolledContainerColor = Color.Transparent
                 )
             )
         }
-    ) { _ ->
+    ) { paddingValues ->
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
         ) {
             when {
-                uiState.isLoading -> {
-                    LoadingIndicator()
-                }
-                uiState.error != null -> {
-                    ErrorView(
-                        message = uiState.error ?: stringResource(R.string.error_loading_details),
-                        onRetry = { viewModel.onEvent(DetailEvent.Retry) }
-                    )
-                }
                 uiState.movieDetails != null -> {
                     val movieDetails = uiState.movieDetails!!
 
@@ -120,6 +142,15 @@ fun DetailScreen(
                             MovieInfo(movieDetails = movieDetails)
                         }
                     }
+                }
+                uiState.isLoading -> {
+                    LoadingIndicator()
+                }
+                uiState.error != null -> {
+                    ErrorView(
+                        message = uiState.error ?: stringResource(R.string.error_loading_details),
+                        onRetry = { viewModel.onEvent(DetailEvent.Retry) }
+                    )
                 }
             }
         }

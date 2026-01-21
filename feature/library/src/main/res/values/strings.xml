@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="library_title">Library</string>
+    <string name="no_favorites">No favorite movies yet</string>
+    <string name="movie_poster">Movie poster</string>
 </resources>

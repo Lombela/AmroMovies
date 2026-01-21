@@ -18,6 +18,13 @@ interface MovieRepository {
 
     suspend fun loadMoreMovieList(userId: String, listType: MovieListType): Result<Unit>
 
+    fun observeMovieDetails(movieId: Int): Flow<MovieDetails?>
+
+    suspend fun refreshMovieDetails(movieId: Int): Result<Unit>
+
     suspend fun getGenres(): Result<List<Genre>>
-    suspend fun getMovieDetails(movieId: Int): Result<MovieDetails>
+
+    fun observeIsFavoriteMovie(userId: String, movieId: Int): Flow<Boolean>
+    suspend fun addFavoriteMovie(userId: String, movieDetails: MovieDetails): Result<Unit>
+    suspend fun removeFavoriteMovie(userId: String, movieId: Int): Result<Unit>
 }

@@ -6,9 +6,11 @@ import androidx.room.Transaction
 import androidx.room.Upsert
 import com.amro.movies.data.local.entity.GenreEntity
 import com.amro.movies.data.local.entity.MovieEntity
+import com.amro.movies.data.local.entity.MovieDetailsEntity
 import com.amro.movies.data.local.entity.MovieGenreCrossRef
 import com.amro.movies.data.local.entity.MovieListEntryEntity
 import com.amro.movies.data.local.entity.MovieListMetaEntity
+import com.amro.movies.data.local.model.MovieDetailsWithGenres
 import com.amro.movies.data.local.model.MovieListEntryWithMovie
 import kotlinx.coroutines.flow.Flow
 
@@ -44,8 +46,19 @@ interface MovieDao {
         limit: Int
     ): List<MovieListEntryWithMovie>
 
+    @Transaction
+    @Query("SELECT * FROM movie_details WHERE movieId = :movieId")
+    fun observeMovieDetails(movieId: Int): Flow<MovieDetailsWithGenres?>
+
+    @Transaction
+    @Query("SELECT * FROM movie_details WHERE movieId = :movieId")
+    suspend fun getMovieDetails(movieId: Int): MovieDetailsWithGenres?
+
     @Upsert
     suspend fun upsertMovies(movies: List<MovieEntity>)
+
+    @Upsert
+    suspend fun upsertMovieDetails(details: MovieDetailsEntity)
 
     @Upsert
     suspend fun upsertGenres(genres: List<GenreEntity>)
@@ -77,17 +90,50 @@ interface MovieDao {
     )
     suspend fun getListMovieIds(userId: String, listType: String): List<Int>
 
+    @Query("SELECT * FROM movies WHERE movieId = :movieId")
+    suspend fun getMovie(movieId: Int): MovieEntity?
+
     @Query("SELECT COUNT(*) FROM movies")
     suspend fun getMovieCount(): Int
 
     @Query(
         """
         SELECT movieId FROM movies
+        WHERE movieId NOT IN (
+            SELECT movieId FROM movie_list_entries
+            WHERE listType = :protectedListType
+        )
         ORDER BY lastAccessEpochMs ASC, cacheSizeBytes DESC
         LIMIT :limit
         """
     )
-    suspend fun getEvictionCandidates(limit: Int): List<Int>
+    suspend fun getEvictionCandidates(limit: Int, protectedListType: String): List<Int>
+
+    @Query(
+        """
+        SELECT EXISTS(
+            SELECT 1 FROM movie_list_entries
+            WHERE userId = :userId AND listType = :listType AND movieId = :movieId
+        )
+        """
+    )
+    fun observeIsMovieInList(
+        userId: String,
+        listType: String,
+        movieId: Int
+    ): Flow<Boolean>
+
+    @Query(
+        """
+        DELETE FROM movie_list_entries
+        WHERE userId = :userId AND listType = :listType AND movieId = :movieId
+        """
+    )
+    suspend fun deleteListEntry(
+        userId: String,
+        listType: String,
+        movieId: Int
+    )
 
     @Query("DELETE FROM movies WHERE movieId IN (:movieIds)")
     suspend fun deleteMovies(movieIds: List<Int>)
@@ -97,6 +143,9 @@ interface MovieDao {
 
     @Query("DELETE FROM movie_list_entries WHERE movieId IN (:movieIds)")
     suspend fun deleteListEntriesForMovies(movieIds: List<Int>)
+
+    @Query("DELETE FROM movie_details WHERE movieId IN (:movieIds)")
+    suspend fun deleteMovieDetails(movieIds: List<Int>)
 
     @Query("SELECT * FROM genres")
     suspend fun getGenres(): List<GenreEntity>

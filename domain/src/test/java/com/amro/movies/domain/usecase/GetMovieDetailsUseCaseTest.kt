@@ -1,14 +1,15 @@
 package com.amro.movies.domain.usecase
 
 import com.amro.movies.TestData
-import com.amro.movies.core.util.Result
 import com.amro.movies.domain.repository.MovieRepository
-import io.mockk.coEvery
-import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -28,42 +29,39 @@ class GetMovieDetailsUseCaseTest {
         // Given
         val movieId = 1
         val movieDetails = TestData.movieDetails
-        coEvery { movieRepository.getMovieDetails(movieId) } returns Result.Success(movieDetails)
+        every { movieRepository.observeMovieDetails(movieId) } returns flowOf(movieDetails)
 
         // When
-        val result = useCase(movieId)
+        val result = useCase(movieId).first()
 
         // Then
-        assertTrue(result.isSuccess)
-        assertEquals(movieDetails, (result as Result.Success).data)
-        coVerify(exactly = 1) { movieRepository.getMovieDetails(movieId) }
+        assertEquals(movieDetails, result)
+        verify(exactly = 1) { movieRepository.observeMovieDetails(movieId) }
     }
 
     @Test
-    fun `invoke returns error when repository fails`() = runTest {
+    fun `invoke returns null when repository has no cached details`() = runTest {
         // Given
         val movieId = 1
-        val exception = RuntimeException("Movie not found")
-        coEvery { movieRepository.getMovieDetails(movieId) } returns Result.Error(exception)
+        every { movieRepository.observeMovieDetails(movieId) } returns flowOf(null)
 
         // When
-        val result = useCase(movieId)
+        val result = useCase(movieId).first()
 
         // Then
-        assertTrue(result.isError)
-        assertEquals(exception, (result as Result.Error).exception)
+        assertNull(result)
     }
 
     @Test
     fun `invoke calls repository with correct movie id`() = runTest {
         // Given
         val movieId = 42
-        coEvery { movieRepository.getMovieDetails(movieId) } returns Result.Success(TestData.movieDetails)
+        every { movieRepository.observeMovieDetails(movieId) } returns flowOf(TestData.movieDetails)
 
         // When
-        useCase(movieId)
+        useCase(movieId).first()
 
         // Then
-        coVerify(exactly = 1) { movieRepository.getMovieDetails(42) }
+        verify(exactly = 1) { movieRepository.observeMovieDetails(42) }
     }
 }

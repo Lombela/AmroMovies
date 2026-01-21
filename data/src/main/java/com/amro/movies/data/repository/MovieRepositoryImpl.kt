@@ -11,7 +11,6 @@ import com.amro.movies.data.local.mapper.toGenreCrossRefs
 import com.amro.movies.data.local.model.MovieListEntryWithMovie
 import com.amro.movies.data.local.mapper.toDomain as genreToDomain
 import com.amro.movies.data.local.mapper.toEntity as genreToEntity
-import com.amro.movies.data.mapper.toDomain as detailsToDomain
 import com.amro.movies.data.remote.api.TmdbApi
 import com.amro.movies.data.remote.resource.MovieResource
 import com.amro.movies.data.remote.resource.PopularMoviesResource
@@ -50,6 +49,9 @@ class MovieRepositoryImpl @Inject constructor(
         userId: String,
         listType: MovieListType
     ): Result<Unit> = withContext(Dispatchers.IO) {
+        if (listType == MovieListType.FAVORITES) {
+            return@withContext Result.Success(Unit)
+        }
         try {
             val genres = ensureGenresCached()
             val pages = fetchInitialPages(listType)
@@ -105,6 +107,9 @@ class MovieRepositoryImpl @Inject constructor(
         userId: String,
         listType: MovieListType
     ): Result<Unit> = withContext(Dispatchers.IO) {
+        if (listType == MovieListType.FAVORITES) {
+            return@withContext Result.Success(Unit)
+        }
         try {
             val nextPage = localDataSource.getNextPage(userId, listType.name)
                 ?: return@withContext Result.Success(Unit)
@@ -158,10 +163,73 @@ class MovieRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getMovieDetails(movieId: Int): Result<MovieDetails> = withContext(Dispatchers.IO) {
+    override fun observeMovieDetails(movieId: Int): Flow<MovieDetails?> {
+        return localDataSource.observeMovieDetails(movieId)
+            .map { details -> details?.toDomain() }
+    }
+
+    override suspend fun refreshMovieDetails(movieId: Int): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val response = tmdbApi.getMovieDetails(movieId)
-            Result.Success(response.detailsToDomain())
+            val now = System.currentTimeMillis()
+            val detailsEntity = response.toEntity(now)
+            val genres = response.genres.map { it.genreToEntity() }
+            val crossRefs = response.toGenreCrossRefs()
+            localDataSource.upsertMovieDetails(detailsEntity, genres, crossRefs)
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
+    }
+
+    override fun observeIsFavoriteMovie(userId: String, movieId: Int): Flow<Boolean> {
+        return localDataSource.observeIsMovieInList(
+            userId = userId,
+            listType = MovieListType.FAVORITES.name,
+            movieId = movieId
+        )
+    }
+
+    override suspend fun addFavoriteMovie(
+        userId: String,
+        movieDetails: MovieDetails
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val now = System.currentTimeMillis()
+            val existingMovie = localDataSource.getMovie(movieDetails.id)
+            val baseEntity = movieDetails.toEntity(now)
+            val movieEntity = if (existingMovie != null) {
+                baseEntity.copy(popularity = existingMovie.popularity)
+            } else {
+                baseEntity
+            }
+            val genres = movieDetails.genres.map { it.toEntity() }
+            val crossRefs = movieDetails.toGenreCrossRefs()
+            localDataSource.addMovieToList(
+                userId = userId,
+                listType = MovieListType.FAVORITES.name,
+                movie = movieEntity,
+                genres = genres,
+                crossRefs = crossRefs,
+                fetchedAtEpochMs = now
+            )
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(e)
+        }
+    }
+
+    override suspend fun removeFavoriteMovie(
+        userId: String,
+        movieId: Int
+    ): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            localDataSource.removeMovieFromList(
+                userId = userId,
+                listType = MovieListType.FAVORITES.name,
+                movieId = movieId
+            )
+            Result.Success(Unit)
         } catch (e: Exception) {
             Result.Error(e)
         }
@@ -197,6 +265,7 @@ class MovieRepositoryImpl @Inject constructor(
         return when (listType) {
             MovieListType.TRENDING -> tmdbApi.getTrendingMovies(page).toPageResult()
             MovieListType.POPULAR -> tmdbApi.getPopularMovies(page).toPageResult()
+            MovieListType.FAVORITES -> error("Favorites list has no remote source")
         }
     }
 
